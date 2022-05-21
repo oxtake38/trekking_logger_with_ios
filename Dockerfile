@@ -4,7 +4,7 @@ WORKDIR /working_directory
 
 COPY requirements.txt .
 
-RUN apt-get update &
+RUN apt-get update
 
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt

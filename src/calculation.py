@@ -32,12 +32,15 @@ def calc_distance(point_1: dict, point_2: dict)-> float:
 
 
     
-def calc_speed(time_diff: float, length_new: float, length_old: float):
-    """_summary_
+def calc_speed(time_diff: float, altitude_1: float, altitude_2: float):
+    """Calculate the speed of movement [m/h]
 
     Args:
-        time_diff (_type_): sec
-        length_0 (_type_): _description_
-        length_1 (_type_): _description_
+        time_diff (float): sec
+        altitude_1 (float): m
+        altitude_2 (float): m
+    
+    Returns:
+        float: km/h
     """
-    return (length_new - length_old) * 3600 / time_diff
+    return (altitude_1 - altitude_2) * 3600 / time_diff

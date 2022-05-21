@@ -15,3 +15,15 @@ from src import calculation
 def test_calc_distance(point_1, point_2, expected):
     actual = calculation.calc_distance(point_1, point_2)
     assert Decimal(str(actual)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)==Decimal(str(expected)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+@pytest.mark.parametrize("time_diff, altitude_1, altitude_2, expected", [
+    (3600, 600, 0, 600.0),
+    (3600, 0, 600, -600.0),
+    (1800, 0, 600, -1200.0),
+    (1800, 600, 0, 1200.0),
+    (1, 300, 0, 1080000.00),
+    (1, 0, 300, -1080000.00),
+])
+def test_calc_distance(time_diff, altitude_1, altitude_2, expected):
+    actual = calculation.calc_speed(time_diff, altitude_1, altitude_2)
+    assert Decimal(str(actual)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)==Decimal(str(expected)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)

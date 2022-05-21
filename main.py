@@ -37,14 +37,13 @@ def main():
 
     # GPSログの取得
     latest_data = location_api.get_latest_gps_data()
-    latest_data['timestamp'] = datetime.datetime.fromtimestamp(latest_data['timestamp'])
 
     if not is_first:
         log.append(latest_data)
         for i in range(len(log)):
             if i != 0:
-                log[i]["distance"] = calculation.calc_distance(log[i]["longitude"], log[i]["latitude"],
-                                                               log[i - 1]["longitude"], log[i - 1]["latitude"],)
+                log[i]["distance"] = calculation.calc_distance({"longitude": log[i]["longitude"], "latitude": log[i]["latitude"]},
+                                                               {"longitude": log[i - 1]["longitude"], "latitude": log[i - 1]["latitude"]},)
             else:
                 log[i]["distance"] = 0
 
@@ -80,11 +79,7 @@ def main():
                                                               log_60[0]['altitude']),)
         string += '\n'
         string += 'H {:.2f}km/h\n'.format(sum([m['distance'] for m in log_60]) * 3600 / (log_60[-1]['timestamp'] - log_60[0]['timestamp']).total_seconds(),)
-        string += '\n'
-        string += '--Acc--\n'
-        string += '±{:.0f}m'.format(log_30[-1]['vertical_accuracy'])
-        string += '\n'
-        string += '±{:.2f}km'.format(log_30[-1]['horizontal_accuracy'] / 1000)
+
         message = notifications.Notification(message=string)
         notifications.schedule_notification(message, delay=0, repeat=False)
 

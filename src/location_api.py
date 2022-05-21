@@ -11,6 +11,9 @@ def get_latest_gps_data():
     count = 0
     while True:
         now = datetime.datetime.now()
+
+        location.accuracy = location.LOCATION_ACCURACY_BEST
+
         location.start_updating()
         time.sleep(0.5)
         longitude, latitude, altitude = location.get_location()
@@ -22,7 +25,6 @@ def get_latest_gps_data():
                "timestamp": str(datetime.datetime.now())}
 
         timestamp = loc['timestamp']
-        timestamp = datetime.datetime.fromtimestamp(timestamp)
         dt = abs((now - timestamp).total_seconds())
         if dt < 10:
             break

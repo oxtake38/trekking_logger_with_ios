@@ -2,16 +2,24 @@ import datetime
 import time
 import sys
 
+import location
+import notifications
+
+
 def get_latest_gps_data():
-    import location
-    import notification
+
     count = 0
     while True:
         now = datetime.datetime.now()
-        location.start_updates()
+        location.start_updating()
         time.sleep(0.5)
-        loc = location.get_location()
-        location.stop_updates()
+        longitude, latitude, altitude = location.get_location()
+        location.stop_updating()
+
+        loc = {"longitude": longitude,
+               "latitude": latitude,
+               "altitude": altitude,
+               "timestamp": str(datetime.datetime.now())}
 
         timestamp = loc['timestamp']
         timestamp = datetime.datetime.fromtimestamp(timestamp)
@@ -19,7 +27,8 @@ def get_latest_gps_data():
         if dt < 10:
             break
         if count == 5:
-            notification.schedule('System Exit Beacause of Delay: {}'.format(dt))
+            message = notifications.Notification(message='System Exit Beacause of Delay: {}'.format(dt))
+            notifications.schedule_notification(message, delay=0, repeat=False)
             sys.exit()
         print('GPS Loop={}'.format(count))
         count += 1

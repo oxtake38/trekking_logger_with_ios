@@ -5,12 +5,15 @@ import time
 import sys
 import pathlib
 
+import notifications
+
 sys.path.append(pathlib.Path(__file__).parent)
 
 from src import util, calculation, location_api
 
 DIR = "log"
 PATH = 'tmp.pkl'
+
 
 def main():
     os.makedirs(DIR, exist_ok=True)
@@ -23,8 +26,10 @@ def main():
     else:
         with open(os.path.join(DIR, PATH), 'rb') as f:
             log = pickle.load(f)
-        if  abs(now - log[-1]['timestamp']).total_seconds()> 60 * 20:
-            notification.schedule("Reset Logger")
+        if abs(now - log[-1]['timestamp']).total_seconds() > 60 * 20:
+            # notification.schedule("Reset Logger")
+            message = notifications.Notification(message="Reset Logger")
+            notifications.schedule_notification(message, delay=0, repeat=False)
             time.sleep(1)
             os.rename(os.path.join(DIR, PATH), now.strftime('%Y-%m-%d_%H-%M-%S'))
             del log
@@ -39,7 +44,7 @@ def main():
         for i in range(len(log)):
             if i != 0:
                 log[i]["distance"] = calculation.calc_distance(log[i]["longitude"], log[i]["latitude"],
-                                                  log[i - 1]["longitude"], log[i - 1]["latitude"],)
+                                                               log[i - 1]["longitude"], log[i - 1]["latitude"],)
             else:
                 log[i]["distance"] = 0
 
@@ -64,15 +69,15 @@ def main():
         string += '\n'
         string += '--30min--\n'
         string += 'V {:.0f}m/h'.format(calculation.calc_speed((log_30[-1]['timestamp'] - log_30[0]['timestamp']).total_seconds(),
-                                                  log_30[-1]['altitude'],
-                                                  log_30[0]['altitude']),)
+                                                              log_30[-1]['altitude'],
+                                                              log_30[0]['altitude']),)
         string += '\n'
         string += 'H {:.2f}km/h\n'.format(sum([m['distance'] for m in log_30]) * 3600 / (log_30[-1]['timestamp'] - log_30[0]['timestamp']).total_seconds(),)
         string += '\n'
         string += '--60min--\n'
         string += 'V {:.0f}m/h'.format(calculation.calc_speed((log_60[-1]['timestamp'] - log_60[0]['timestamp']).total_seconds(),
-                                                  log_60[-1]['altitude'],
-                                                  log_60[0]['altitude']),)
+                                                              log_60[-1]['altitude'],
+                                                              log_60[0]['altitude']),)
         string += '\n'
         string += 'H {:.2f}km/h\n'.format(sum([m['distance'] for m in log_60]) * 3600 / (log_60[-1]['timestamp'] - log_60[0]['timestamp']).total_seconds(),)
         string += '\n'
@@ -80,8 +85,9 @@ def main():
         string += '±{:.0f}m'.format(log_30[-1]['vertical_accuracy'])
         string += '\n'
         string += '±{:.2f}km'.format(log_30[-1]['horizontal_accuracy'] / 1000)
+        message = notifications.Notification(message=string)
+        notifications.schedule_notification(message, delay=0, repeat=False)
 
-        notification.schedule(string)
     else:
         latest_data["distance"] = 0
         log = [latest_data]
@@ -90,11 +96,12 @@ def main():
         string += '--Current--\n'
         string += 'Alt {:.0f}m'.format(log[-1]['altitude'])
 
-        notification.schedule(string)
+        message = notifications.Notification(message=string)
+        notifications.schedule_notification(message, delay=0, repeat=False)
 
     with open(os.path.join(DIR, PATH), 'wb') as f:
         pickle.dump(log, f)
 
 
-# if __name__ == '__main__':
-    # main()
+if __name__ == '__main__':
+    main()
